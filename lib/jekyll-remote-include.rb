@@ -1,5 +1,6 @@
 require 'net/http'
 require 'uri'
+require 'logger'
 
 module Jekyll
 
@@ -15,6 +16,7 @@ module Jekyll
     end
 
     def render(context)
+      @logger = Logger.new(STDOUT)
       # get the remote URL and see if the string has begin/end tokens
       input_split = split_params(@remote_include)
       url = input_split[0]
@@ -29,8 +31,16 @@ module Jekyll
           # get the lines between the tokens
           output = raw.match(/#{begin_token}(.*)#{end_token}/m)[1]
         else
+          begin_match = raw.match?(begin_token) ? "True" : "False"
+          end_match = raw.match?(end_token) ? "True" : "False"
           # if the file doesn't have the begin and end token just output the entire file
           output = raw
+          @logger.warn("Remote file fragment doesn't contain begin and end token.")
+          @logger.warn("Url: " << url)
+          @logger.warn("Begin token: " << begin_token)
+          @logger.warn("End token: " << end_token)
+          @logger.warn("Begin token present? " << begin_match)
+          @logger.warn("End token present? " << end_match)
         end
       else
         output = open(url)
@@ -39,7 +49,7 @@ module Jekyll
     end
 
     def split_params(params)
-      params.split("|")
+      params.split("|").map(&:strip)
     end
   end
 end
