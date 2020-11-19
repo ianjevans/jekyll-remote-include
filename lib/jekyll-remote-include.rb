@@ -18,7 +18,7 @@ module Jekyll
       # get the remote URL and see if the string has begin/end tokens
       input_split = split_params(@remote_include)
       url = input_split[0]
-      if (input_split > 1)
+      if input_split.length() > 1
         # first parameter is the begin token string
         begin_token = input_split[1]
         # second parameter is the end token string
