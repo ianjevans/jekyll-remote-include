@@ -36,10 +36,11 @@ module Jekyll
           # if the file doesn't have the begin and end token just output the entire file
           output = raw
           @logger.warn("Remote file fragment doesn't contain begin and end token.")
+          @logger.warn("Page: " << context.environments.first["page"]["path"])
           @logger.warn("Url: " << url)
           @logger.warn("Begin token: " << begin_token)
-          @logger.warn("End token: " << end_token)
           @logger.warn("Begin token present? " << begin_match)
+          @logger.warn("End token: " << end_token)
           @logger.warn("End token present? " << end_match)
         end
       else
