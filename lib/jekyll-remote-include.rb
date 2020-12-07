@@ -35,13 +35,14 @@ module Jekyll
           end_match = raw.match?(end_token) ? "True" : "False"
           # if the file doesn't have the begin and end token just output the entire file
           output = raw
-          @logger.error("Remote file fragment doesn't contain begin and end token.")
-          @logger.error("Page: " << context.environments.first["page"]["path"])
-          @logger.error("Url: " << url)
-          @logger.error("Begin token: " << begin_token)
-          @logger.error("Begin token present? " << begin_match)
-          @logger.error("End token: " << end_token)
-          @logger.error("End token present? " << end_match)
+          @logger.warn("Remote file fragment doesn't contain begin and end token.")
+          @logger.warn("Page: " << context.environments.first["page"]["path"])
+          @logger.warn("Url: " << url)
+          @logger.warn("Begin token: " << begin_token)
+          @logger.warn("Begin token present? " << begin_match)
+          @logger.warn("End token: " << end_token)
+          @logger.warn("End token present? " << end_match)
+          throw "Remote fragment include error in " << context.environments.first["page"]["path"]
         end
       else
         output = open(url)
