@@ -42,7 +42,7 @@ module Jekyll
           @logger.warn("Begin token present? " << begin_match)
           @logger.warn("End token: " << end_token)
           @logger.warn("End token present? " << end_match)
-          throw "Remote fragment include error in " << context.environments.first["page"]["path"]
+          raise ArgumentError, "Remote fragment include error in " << context.environments.first["page"]["path"]
         end
       else
         output = open(url)
