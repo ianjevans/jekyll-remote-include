@@ -17,19 +17,24 @@ module Jekyll
 
     # Returns the plugin's config or an empty hash if not set
     def config
-      @config ||= @site.config["remote_include"] || {}
+      @config ||= @context.registers[:site].config['remote_include'] || {}
     end
 
     def open(url)
-      if config["use_cache"] == true || !config["use_cache"]
+      if config['use_cache'] == true || !config.has_key?('use_cache')
         cache.getset(url) do
           Net::HTTP.get(URI.parse(url.strip)).force_encoding 'utf-8'
         end
-      else
+      elsif !config["use_cache"]
         Net::HTTP.get(URI.parse(url.strip)).force_encoding 'utf-8'
+      else
+        @logger.warn("use_cache set to non-boolean value, retrieving remote file just in case.")
+        Net::HTTP.get(URI.parse(url.strip)).force_encoding 'utf-8'
+      end
     end
 
     def render(context)
+      @context = context
       @logger = Logger.new(STDOUT)
       # get the remote URL and see if the string has begin/end tokens
       input_split = split_params(@remote_include)
@@ -54,7 +59,7 @@ module Jekyll
           @logger.warn("Begin token present? " << begin_match)
           @logger.warn("End token: " << end_token)
           @logger.warn("End token present? " << end_match)
-          if config["on_token_error"] == "fail" || !config["on_token_error"]
+          if config["on_token_error"] == "fail" || !config.has_key?("on_token_error")
             # Fail the build by default if there are token errors
             raise ArgumentError, "Remote fragment include error in " << context.environments.first["page"]["path"]
           elsif config["on_token_error"] == "full"
@@ -62,6 +67,8 @@ module Jekyll
             output = raw
           elsif config["on_token_error"] == "none"
             output = ""
+          else
+            raise ArgumentError, "on_token_error setting in remote_include configuration invalid"
           end
         end
       else
