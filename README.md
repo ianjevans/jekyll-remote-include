@@ -60,6 +60,15 @@ remote_include:
   on_token_error: full
 ```
 
+### Caching
+
+By default caching is enabled to improve performance. Disable caching by setting the `use_cache` configuration option to `false`.
+
+```yaml
+remote_include:
+  use_cache: false
+```
+
 ## Contributing
 
 1.  Fork it.
