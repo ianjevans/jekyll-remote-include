@@ -6,13 +6,24 @@ module Jekyll
 
   class RemoteInclude < Liquid::Tag
 
+    def cache
+      @@cache ||= Jekyll::Cache.new("RemoteInclude")
+    end
+
     def initialize(tag_name, remote_include, tokens)
       super
       @remote_include = remote_include
     end
 
+    # Returns the plugin's config or an empty hash if not set
+    def config
+      @config ||= @site.config["remote_include"] || {}
+    end
+
     def open(url)
-      Net::HTTP.get(URI.parse(url.strip)).force_encoding 'utf-8'
+      cache.getset(url) do
+        Net::HTTP.get(URI.parse(url.strip)).force_encoding 'utf-8'
+      end
     end
 
     def render(context)
@@ -33,8 +44,6 @@ module Jekyll
         else
           begin_match = raw.match?(begin_token) ? "True" : "False"
           end_match = raw.match?(end_token) ? "True" : "False"
-          # if the file doesn't have the begin and end token just output the entire file
-          output = raw
           @logger.warn("Remote file fragment doesn't contain begin and end token.")
           @logger.warn("Page: " << context.environments.first["page"]["path"])
           @logger.warn("Url: " << url)
@@ -42,7 +51,15 @@ module Jekyll
           @logger.warn("Begin token present? " << begin_match)
           @logger.warn("End token: " << end_token)
           @logger.warn("End token present? " << end_match)
-          raise ArgumentError, "Remote fragment include error in " << context.environments.first["page"]["path"]
+          if config["on_token_error"] == "fail" || !config["on_token_error"]
+            # Fail the build by default if there are token errors
+            raise ArgumentError, "Remote fragment include error in " << context.environments.first["page"]["path"]
+          elsif config["on_token_error"] == "full"
+            # if the file doesn't have the begin and end token just output the entire file
+            output = raw
+          elsif config["on_token_error"] == "none"
+            output = ""
+          end
         end
       else
         output = open(url)
