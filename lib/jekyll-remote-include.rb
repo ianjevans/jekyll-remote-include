@@ -21,9 +21,12 @@ module Jekyll
     end
 
     def open(url)
-      cache.getset(url) do
+      if config["use_cache"] == true || !config["use_cache"]
+        cache.getset(url) do
+          Net::HTTP.get(URI.parse(url.strip)).force_encoding 'utf-8'
+        end
+      else
         Net::HTTP.get(URI.parse(url.strip)).force_encoding 'utf-8'
-      end
     end
 
     def render(context)
