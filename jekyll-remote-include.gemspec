@@ -5,7 +5,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name          = "jekyll-remote-include"
-  spec.version       = "1.1.3"
+  spec.version       = "1.1.4"
   spec.authors       = ["Jason Maggiacomo", "Kris Northfield", "Ian Evans"]
   spec.email         = ["jason.maggiacomo@gmail.com"]
   spec.summary       = "A Liquid tag plugin for Jekyll that allows remote includes from external assets."
